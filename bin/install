@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+[ -n "$ASDF_INSTALL_VERSION" ] || (echo >&2 'Missing ASDF_INSTALL_VERSION' && exit 1)
+[ -n "$ASDF_INSTALL_PATH" ] || (echo >&2 'Missing ASDF_INSTALL_PATH' && exit 1)
+ASDF_INSTALL_TYPE=${ASDF_INSTALL_TYPE:-version  }
+
+install() {
+  # shellcheck disable=SC1091
+  source "$(dirname "$0")/download"
+
+  local bin_install_path="$ASDF_INSTALL_PATH/bin"
+  local bin_path="${bin_install_path}/oauth2c"
+
+  mkdir -p "$bin_install_path"
+  download "${ASDF_INSTALL_VERSION}" "${ASDF_INSTALL_PATH}"
+
+  if [[ -f "${ASDF_INSTALL_PATH}/oauth2c" ]]; then
+    mv "${ASDF_INSTALL_PATH}/oauth2c" "${bin_path}"
+  fi
+  if [[ -f "${ASDF_INSTALL_PATH}/oauth2c.exe" ]]; then
+    mv "${ASDF_INSTALL_PATH}/oauth2c.exe" "${bin_path}"
+  fi
+  chmod +x "${bin_path}"
+  rm -rf "${ASDF_INSTALL_PATH}/oauth2c*"
+
+  if [ -x "$ASDF_INSTALL_PATH/bin/oauth2c" ]; then
+    echo "oauth2c $ASDF_INSTALL_VERSION has been installed"
+    exit 0
+  else
+    echo "An error ocurred while installing oauth2c $ASDF_INSTALL_VERSION" 1>&2
+    rm -rf "${ASDF_INSTALL_PATH}/oauth2c*"
+    exit 1
+  fi
+}
+
+install
+
+## For local testing
+# ASDF_INSTALL_TYPE="" ASDF_INSTALL_VERSION="1.12.2" ASDF_INSTALL_PATH="$HOME/.asdf/shims" bash install

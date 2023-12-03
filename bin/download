@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+download() {
+
+  if command -v curl >/dev/null 2>&1; then
+    echo "curl already installed"
+  else
+    echo "curl not installed! Please install curl before proceeding."
+    exit 1
+  fi
+
+  local OAUTH2C_VERSION="$1"
+  local OAUTH2C_DOWNLOAD_PATH="${2}"
+
+  os=$(uname -s | tr '[:upper:]' '[:lower:]')
+  machine=$(uname -m | tr '[:upper:]' '[:lower:]')
+
+  os_version=""
+  case "$os" in
+    "linux")
+      os_version="Linux"
+      ;;
+    "darwin")
+      os_version="Darwin"
+      ;;
+    *)
+      # try Windows; if it's not Linux and it's not MacOS, try Windows.
+      os_version="Windows"
+      ;;
+  esac
+
+  machine_type=""
+  case "$machine" in
+    "x86_64")
+      machine_type="x86_64"
+      ;;
+    "aarch64")
+      machine_type="arm64"
+      ;;
+    *)
+      echo "Architecture not recognized or not supported."
+      exit 1
+      ;;
+  esac
+
+  echo "Determined operating system to be ${os_version}."
+  echo "Determined machine type to be ${machine_type}."
+
+  download_url="https://github.com/cloudentity/oauth2c/releases/download/v${OAUTH2C_VERSION}/oauth2c_${OAUTH2C_VERSION}_${os_version}_${machine_type}.tar.gz"
+
+  echo "Downloading oauth2c ${OAUTH2C_VERSION} from $download_url"
+  temp_file="$OAUTH2C_DOWNLOAD_PATH/oauth2c.tar.gz"
+  curl -fsSL -o "$temp_file" "$download_url"
+  curl_exit_code=$?
+
+  if [ "$curl_exit_code" -ne 0 ]; then
+    echo "Failed to download oauth2c."
+    exit 1
+  fi
+
+  echo "Extracting oauth2c ${OAUTH2C_VERSION} into ${OAUTH2C_DOWNLOAD_PATH}"
+  tar -xzf "${temp_file}" -C "${OAUTH2C_DOWNLOAD_PATH}"
+
+  ## catch any accidential deletion if somebody set the wrong temp_dir
+  if [ -d "$OAUTH2C_DOWNLOAD_PATH" ]; then
+    echo "Deleting temp file ${temp_file}."
+    rm -rf "$temp_file"
+  fi
+}
+
+## Useful for testing this script locally.
+# download "1.12.2" "."
