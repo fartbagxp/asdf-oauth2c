@@ -16,6 +16,8 @@ This is a [oauth2c](https://github.com/cloudentity/oauth2c) plugin for the [asdf
 ## Plugin Dependencies
 
 - `curl` - for oauth2c downloads from upstream releases
+- `grep` - to pull checksum text from the checksum file
+- `sha256sum`, `sha256` or `shasum` - to verify checksum for integrity check with a file
 
 ## Install
 

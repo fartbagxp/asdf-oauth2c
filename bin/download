@@ -2,12 +2,45 @@
 
 set -euo pipefail
 
-download() {
+# different operating systems may have different tool installations to
+# run checksums, figure out which one to use to verify checksums.
+_sha256sum() {
+  local cmd
+  if command -v sha256sum &>/dev/null; then
+    cmd=(sha256sum)
+  elif command -v sha256 &>/dev/null; then
+    cmd=(ssha256 -r)
+  elif command -v shasum &>/dev/null; then
+    cmd=(shasum -a 256)
+  else
+    echo "ERROR: could not find shasum or sha256sum."
+    return 1
+  fi
 
+  "${cmd[@]}" "$@"
+}
+
+download() {
   if command -v curl >/dev/null 2>&1; then
     echo "curl already installed"
   else
     echo "curl not installed! Please install curl before proceeding."
+    exit 1
+  fi
+
+  if command -v grep &>/dev/null; then
+    echo "grep already installed"
+    if command -v sha256sum &>/dev/null; then
+      echo "sha256sum is installed for verifying checksums"
+    elif command -v sha256 &>/dev/null; then
+      echo "sha256 is installed for verifying checksums"
+    elif command -v shasum &>/dev/null; then
+      echo "shasum is installed for verifying checksums"
+    else
+      echo "No tool {sha256sum, sha256, shasum} to verify checksum found. Install one of the following before proceeding."
+    fi
+  else
+    echo "grep not installed! Please install grep before proceeding."
     exit 1
   fi
 
@@ -48,27 +81,47 @@ download() {
   echo "Determined operating system to be ${os_version}."
   echo "Determined machine type to be ${machine_type}."
 
+  download_file="oauth2c_${OAUTH2C_VERSION}_${os_version}_${machine_type}.tar.gz"
   download_url="https://github.com/cloudentity/oauth2c/releases/download/v${OAUTH2C_VERSION}/oauth2c_${OAUTH2C_VERSION}_${os_version}_${machine_type}.tar.gz"
+  checksum_file="checksums.txt"
+  checksum_url="https://github.com/cloudentity/oauth2c/releases/download/v${OAUTH2C_VERSION}/${checksum_file}"
 
   echo "Downloading oauth2c ${OAUTH2C_VERSION} from $download_url"
-  temp_file="$OAUTH2C_DOWNLOAD_PATH/oauth2c.tar.gz"
-  curl -fsSL -o "$temp_file" "$download_url"
+  binary_temp_file="$OAUTH2C_DOWNLOAD_PATH/${download_file}"
+  curl -fsSL -o "${binary_temp_file}" "${download_url}"
   curl_exit_code=$?
-
-  if [ "$curl_exit_code" -ne 0 ]; then
+  if [ "${curl_exit_code}" -ne 0 ]; then
     echo "Failed to download oauth2c."
     exit 1
   fi
 
+  echo "Downloading checksum for oauth2c ${OAUTH2C_VERSION} from ${checksum_url}"
+  checksum_temp_file="${OAUTH2C_DOWNLOAD_PATH}/${checksum_file}"
+  curl -fsSL -o "${checksum_temp_file}" "${checksum_url}"
+  curl_exit_code=$?
+  if [ "${curl_exit_code}" -ne 0 ]; then
+    echo "Failed to download oauth2c checksums."
+    exit 1
+  fi
+
+  echo "Validating checksums"
+  cd "${OAUTH2C_DOWNLOAD_PATH}" && grep -e "${download_file}$" "${checksum_file}" | _sha256sum -c && cd -
+
   echo "Extracting oauth2c ${OAUTH2C_VERSION} into ${OAUTH2C_DOWNLOAD_PATH}"
-  tar -xzf "${temp_file}" -C "${OAUTH2C_DOWNLOAD_PATH}"
+  tar -xzf "${binary_temp_file}" -C "${OAUTH2C_DOWNLOAD_PATH}"
 
   ## catch any accidential deletion if somebody set the wrong temp_dir
   if [ -d "$OAUTH2C_DOWNLOAD_PATH" ]; then
-    echo "Deleting temp file ${temp_file}."
-    rm -rf "$temp_file"
+    if [ -f "${binary_temp_file}" ]; then
+      echo "Deleting temp files ${binary_temp_file}."
+      rm -rf "$binary_temp_file"
+    fi
+    if [ -f "${checksum_temp_file}" ]; then
+      echo "Deleting temp files ${checksum_temp_file}."
+      rm -rf "$checksum_temp_file"
+    fi
   fi
 }
 
 ## Useful for testing this script locally.
-# download "1.12.2" "."
+# download "1.12.2" "./tmp"

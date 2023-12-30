@@ -84,3 +84,5 @@ bin/oauth2c*
 bin/*.tar.gz
 bin/LICENSE
 bin/README.md
+tmp/*
+!tmp/.gitkeep
