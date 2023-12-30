@@ -124,4 +124,4 @@ download() {
 }
 
 ## Useful for testing this script locally.
-download "1.12.2" "./tmp"
+# download "1.12.2" "./tmp"
