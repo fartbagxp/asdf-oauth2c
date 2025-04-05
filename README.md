@@ -1,6 +1,5 @@
 # asdf-oauth2c
 
-![CI](https://github.com/fartbagxp/asdf-oauth2c/workflows/CI/badge.svg)
 ![Lint](https://github.com/fartbagxp/asdf-oauth2c/workflows/Lint/badge.svg)
 [![License](https://img.shields.io/badge/license-MIT-blue)](https://choosealicense.com/licenses/mit/)
 [![Doc](https://img.shields.io/badge/Doc-asdf-blue)](https://asdf-vm.com/)
