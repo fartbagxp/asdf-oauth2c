@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue)](https://choosealicense.com/licenses/mit/)
 [![Doc](https://img.shields.io/badge/Doc-asdf-blue)](https://asdf-vm.com/)
 
-This is a [oauth2c](https://github.com/cloudentity/oauth2c) plugin for the [asdf version manager](https://asdf-vm.com/).
+This is a [oauth2c](https://github.com/SecureAuthCorp/oauth2c) plugin for the [asdf version manager](https://asdf-vm.com/).
 
 ## Contents
 
