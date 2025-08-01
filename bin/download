@@ -82,9 +82,9 @@ download() {
   echo "Determined machine type to be ${machine_type}."
 
   download_file="oauth2c_${OAUTH2C_VERSION}_${os_version}_${machine_type}.tar.gz"
-  download_url="https://github.com/cloudentity/oauth2c/releases/download/v${OAUTH2C_VERSION}/oauth2c_${OAUTH2C_VERSION}_${os_version}_${machine_type}.tar.gz"
+  download_url="https://github.com/SecureAuthCorp/oauth2c/releases/download/v${OAUTH2C_VERSION}/oauth2c_${OAUTH2C_VERSION}_${os_version}_${machine_type}.tar.gz"
   checksum_file="checksums.txt"
-  checksum_url="https://github.com/cloudentity/oauth2c/releases/download/v${OAUTH2C_VERSION}/${checksum_file}"
+  checksum_url="https://github.com/SecureAuthCorp/oauth2c/releases/download/v${OAUTH2C_VERSION}/${checksum_file}"
 
   echo "Downloading oauth2c ${OAUTH2C_VERSION} from $download_url"
   binary_temp_file="$OAUTH2C_DOWNLOAD_PATH/${download_file}"
