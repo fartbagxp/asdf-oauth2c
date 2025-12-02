@@ -47,6 +47,12 @@ download() {
   local OAUTH2C_VERSION="$1"
   local OAUTH2C_DOWNLOAD_PATH="${2}"
 
+  # Resolve "latest" to actual version
+  if [ "$OAUTH2C_VERSION" = "latest" ]; then
+    OAUTH2C_VERSION=$("$(dirname "$0")/list-all" | tail -n 1)
+    echo "Resolved 'latest' to version: ${OAUTH2C_VERSION}"
+  fi
+
   os=$(uname -s | tr '[:upper:]' '[:lower:]')
   machine=$(uname -m | tr '[:upper:]' '[:lower:]')
 
@@ -69,7 +75,7 @@ download() {
     "x86_64")
       machine_type="x86_64"
       ;;
-    "aarch64")
+    "aarch64" | "arm64")
       machine_type="arm64"
       ;;
     *)
@@ -122,6 +128,3 @@ download() {
     fi
   fi
 }
-
-## Useful for testing this script locally.
-# download "1.12.2" "./tmp"
