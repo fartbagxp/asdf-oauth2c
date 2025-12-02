@@ -128,6 +128,3 @@ download() {
     fi
   fi
 }
-
-## Useful for testing this script locally.
-download "latest" "./tmp"
